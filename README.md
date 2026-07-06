@@ -236,6 +236,61 @@ Example: if prices go `100 → 80 → 120`, the highest gain is **40** (buy at 8
 
 ---
 
+## Design decisions
+
+### What the data represents
+
+Each row in the uploaded file is a **daily share price** for one company. Together, the records show how each stock moved over time. This type of data is often used for trend analysis, forecasting, visualization, and financial reporting.
+
+### How do we decide which stock is "topping"?
+
+There is no single correct answer — it depends on what you measure.
+
+| Approach | What it measures | Example (Jan 2019) |
+|----------|------------------|---------------------|
+| **Highest share price** | Which stock trades at the highest absolute price | **Limuru Tea** (KSh 500 → 554) |
+| **Percentage return** | Relative growth, regardless of price level | **Umeme Holdings** (~24%: KSh 7.00 → 8.70) vs Limuru Tea (~10.8%) |
+| **Highest price gain (this app)** | Best gain achievable during the period if you bought at the lowest point before selling | **Limuru Tea**, **EA Breweries**, etc. |
+
+A higher share price does **not** always mean a better investment. Real decisions would also consider volume, profitability, dividends, volatility, and market cap. This assignment focuses on one clear rule from the brief: **highest price gain during the period**.
+
+### Why this app uses "highest price gain"
+
+The assignment asks for the top performers based on the **highest price gain during the period**, not:
+
+- the highest absolute price (Limuru Tea would always win because its price is in the hundreds), or
+- simple start-to-end percentage return (which ignores better buy/sell points within the month).
+
+Instead, for each stock the app:
+
+1. walks through prices in date order,
+2. tracks the lowest price seen so far,
+3. calculates how much gain was possible at each day,
+4. keeps the **maximum** of those gains.
+
+That rewards stocks that had the biggest recoveries or rallies during January 2019 — for example a move from a local low to a later high — even if the stock dipped in between.
+
+### Example from the dataset
+
+- **Limuru Tea** — high absolute price (KSh 500–554) and strong gain; ranks near the top.
+- **Umeme Holdings** — much lower price (KSh ~7–8.7) but strong **percentage** growth (~24%).
+- **EA Breweries** — large absolute gain during the month (sharp rise late in January).
+
+So:
+
+- For **highest share price** → Limuru Tea.
+- For **percentage growth** → compare % change; Umeme Holdings looks stronger on that basis.
+- For **this assignment** → rank by **max price gain during the period** (what the histogram shows).
+
+### UI and technical choices
+
+- **Login** — simple session auth so uploads are tied to a user.
+- **File upload** — CSV, XLS, XLSX, ODS via `maatwebsite/excel` so assessors can use Excel exports as-is.
+- **Histogram** — bar chart of the top 5 gains; easier to compare performers at a glance than a multi-line time series.
+- **Summary cards** — show gain amount and percentage for quick context alongside the chart.
+
+---
+
 ## Useful Artisan commands
 
 | Command | Description |
