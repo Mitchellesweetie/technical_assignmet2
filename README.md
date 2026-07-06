@@ -6,6 +6,24 @@ Performance is calculated as the **highest price gain during the period**: for e
 
 ---
 
+## Screenshots
+
+### Login page
+
+Sign in with the seeded demo credentials to access the dashboard.
+
+![Login page](docs/screenshots/login.png)
+
+**Demo credentials:** `admin@gmail.com` / `Admin@123!`
+
+### Dashboard
+
+Upload a stock price file and view the top 5 performers as a histogram, ranked by highest price gain during the period.
+
+![Stock Performance Dashboard](docs/screenshots/dashboard.png)
+
+---
+
 ## Tech stack
 
 | Item | Version / package |
@@ -43,8 +61,8 @@ Check your versions:
 ```bash
 php -v
 composer -V
-node -v    # optional
-mysql --version   # optional
+node -v    
+mysql --version   
 ```
 
 ---
@@ -54,7 +72,7 @@ mysql --version   # optional
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Mitchellesweetie/technical_assignmet2.git
 cd technical_assignmet2
 ```
 
@@ -185,7 +203,7 @@ php artisan serve
 1. Go to **http://localhost:8000**
 2. Log in with one of the seeded accounts (see table above)
 3. On the dashboard, upload a stock price file (CSV, XLS, XLSX, or ODS)
-4. View the **Top 5 performers** line chart and summary cards
+4. View the **Top 5 performers** histogram and summary cards
 
 ### Expected file format
 
@@ -253,7 +271,7 @@ database/
 
 resources/views/
 ├── login.blade.php
-└── dashboard.blade.php                # Upload form + Chart.js graph
+└── dashboard.blade.php                # Upload form + Chart.js histogram
 
 routes/web.php                         # Application routes
 ```

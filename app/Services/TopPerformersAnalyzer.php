@@ -10,7 +10,7 @@ class TopPerformersAnalyzer
     /**
      * @return array{
      *     performers: Collection<int, array{stock: string, gain: float, gain_percent: float, start_price: float, peak_price: float}>,
-     *     chart: array{labels: array<int, string>, datasets: array<int, array{label: string, data: array<int, float|null>, borderColor: string, backgroundColor: string, tension: float, fill: bool}>},
+     *     chart: array{labels: array<int, string>, datasets: array<int, array{label: string, data: array<int, float>, backgroundColor: array<int, string>, borderColor: array<int, string>, borderWidth: int, borderRadius: int}>},
      *     period: array{start: string|null, end: string|null}
      * }
      */
@@ -57,7 +57,6 @@ class TopPerformersAnalyzer
             ->values()
             ->take($limit);
 
-        $topStockNames = $performers->pluck('stock');
         $allDates = $prices->flatten(1)
             ->pluck('date')
             ->map(fn ($date) => $date->toDateString())
@@ -73,28 +72,24 @@ class TopPerformersAnalyzer
             '#dc2626',
         ];
 
-        $datasets = $performers->values()->map(function (array $performer, int $index) use ($prices, $allDates, $colors) {
-            $stockPrices = $prices->get($performer['stock'], collect())
-                ->keyBy(fn ($entry) => $entry->date->toDateString());
-
-            return [
-                'label' => $performer['stock'],
-                'data' => $allDates->map(
-                    fn (string $date) => isset($stockPrices[$date]) ? (float) $stockPrices[$date]->price : null
-                )->all(),
-                'borderColor' => $colors[$index % count($colors)],
-                'backgroundColor' => $colors[$index % count($colors)],
-                'tension' => 0.35,
-                'fill' => false,
-                'spanGaps' => true,
-            ];
-        })->all();
+        $barColors = $performers->values()->map(
+            fn ($_, int $index) => $colors[$index % count($colors)]
+        )->all();
 
         return [
             'performers' => $performers,
             'chart' => [
-                'labels' => $allDates->all(),
-                'datasets' => $datasets,
+                'labels' => $performers->pluck('stock')->all(),
+                'datasets' => [
+                    [
+                        'label' => 'Max price gain',
+                        'data' => $performers->pluck('gain')->all(),
+                        'backgroundColor' => $barColors,
+                        'borderColor' => $barColors,
+                        'borderWidth' => 1,
+                        'borderRadius' => 8,
+                    ],
+                ],
             ],
             'period' => [
                 'start' => $allDates->first(),
