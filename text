@@ -1,0 +1,54 @@
+
+//checking total number of companies, total number of price rows, and the period covered by the data
+SELECT
+    COUNT(DISTINCT stock_name) AS total_companies,
+    COUNT(*) AS total_price_rows,
+    MIN(date) AS period_start,
+    MAX(date) AS period_end
+FROM stock_prices;
+
+//checking prices against timeseries
+WITH daily_gains AS (
+    SELECT
+        sp.stock_name,
+        sp.date,
+        sp.price,
+        MIN(sp.price) OVER (
+            PARTITION BY sp.stock_name
+            ORDER BY sp.date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS running_min_price,
+        sp.price - MIN(sp.price) OVER (
+            PARTITION BY sp.stock_name
+            ORDER BY sp.date
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS price_gain
+    FROM stock_prices sp
+),
+stock_performance AS (
+    SELECT
+        stock_name,
+        COUNT(*) AS trading_days,
+        MIN(date) AS period_start,
+        MAX(date) AS period_end,
+        MIN(price) AS absolute_low,
+        MAX(price) AS absolute_high,
+        MAX(price_gain) AS max_price_gain,
+        MIN(running_min_price) AS lowest_price_used,
+        MAX(price) AS highest_price_reached
+    FROM daily_gains
+    GROUP BY stock_name
+)
+SELECT
+    stock_name,
+    trading_days,
+    period_start,
+    period_end,
+    ROUND(absolute_low, 4) AS absolute_low,
+    ROUND(absolute_high, 4) AS absolute_high,
+    ROUND(max_price_gain, 4) AS max_price_gain,
+    ROUND(lowest_price_used, 4) AS buy_price,
+    ROUND(highest_price_reached, 4) AS peak_price,
+    ROUND((max_price_gain / lowest_price_used) * 100, 2) AS gain_percent
+FROM stock_performance
+ORDER BY max_price_gain DESC ;

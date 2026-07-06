@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Stock Performance Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Inter", sans-serif;
+            color: var(--text);
+            background: linear-gradient(180deg, #e2e8f0 0%, var(--bg) 220px, var(--bg) 100%);
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            color: #fff;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 1.35rem;
+        }
+
+        .brand p {
+            margin: 4px 0 0;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 0.92rem;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-pill {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 0.88rem;
+        }
+
+        .logout-btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.14);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px 20px 40px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .card h2 {
+            margin: 0 0 8px;
+            font-size: 1.15rem;
+        }
+
+        .card p {
+            margin: 0 0 20px;
+            color: var(--muted);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .upload-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 28px 18px;
+            text-align: center;
+            background: #f8fafc;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .upload-box input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .file-name {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 0.88rem;
+            min-height: 20px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 12px;
+            padding: 13px 18px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            font-size: 0.92rem;
+        }
+
+        .alert-success {
+            background: #ecfdf5;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .meta {
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        .meta strong {
+            color: var(--text);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .period-badge {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 420px;
+        }
+
+        .performers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .performer-card {
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            background: #f8fafc;
+        }
+
+        .performer-card .rank {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .performer-card h3 {
+            margin: 6px 0 8px;
+            font-size: 0.98rem;
+            line-height: 1.3;
+        }
+
+        .gain {
+            color: var(--success);
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .gain small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            min-height: 360px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: var(--muted);
+            padding: 24px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 8px;
+            color: var(--text);
+        }
+
+        @media (max-width: 960px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrap {
+                height: 320px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <h1>Stock Performance Dashboard</h1>
+            <p>Upload prices and discover the top 5 gainers for the period.</p>
+        </div>
+        <div class="topbar-actions">
+            <span class="user-pill">{{ auth()->user()->name }}</span>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="logout-btn">Log out</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="grid">
+            <section class="card">
+                <h2>Upload stock prices</h2>
+                <p>Supported formats: CSV, XLS, XLSX, and ODS. The file should include stock name, price, and date columns.</p>
+
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-error">
+                        @foreach ($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('stocks.upload') }}" enctype="multipart/form-data" id="uploadForm">
+                    @csrf
+                    <div class="upload-box">
+                        <label class="upload-label" for="stock_file">
+                            Choose file
+                        </label>
+                        <input id="stock_file" type="file" name="stock_file" accept=".csv,.txt,.xls,.xlsx,.ods" required>
+                        <div class="file-name" id="fileName">No file selected</div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="uploadBtn">Upload and analyze</button>
+                </form>
+
+                @if ($upload)
+                    <div class="meta">
+                        <div><strong>Latest file:</strong> {{ $upload->filename }}</div>
+                        <div><strong>Uploaded:</strong> {{ $upload->created_at->format('M j, Y g:i A') }}</div>
+                        @if ($analysis)
+                            <div><strong>Period:</strong> {{ $analysis['period']['start'] }} to {{ $analysis['period']['end'] }}</div>
+                        @endif
+                    </div>
+                @endif
+            </section>
+
+            <section class="card">
+                <div class="chart-header">
+                    <div>
+                        <h2>Top 5 performers</h2>
+                        <p>Ranked by highest price gain during the selected period.</p>
+                    </div>
+                    @if ($analysis)
+                        <span class="period-badge">
+                            {{ $analysis['period']['start'] }} &rarr; {{ $analysis['period']['end'] }}
+                        </span>
+                    @endif
+                </div>
+
+                @if ($analysis && $analysis['performers']->isNotEmpty())
+                    <div class="chart-wrap">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+
+                    <div class="performers">
+                        @foreach ($analysis['performers'] as $index => $performer)
+                            <article class="performer-card">
+                                <div class="rank">#{{ $index + 1 }} performer</div>
+                                <h3>{{ $performer['stock'] }}</h3>
+                                <div class="gain">
+                                    +{{ number_format($performer['gain'], 2) }}
+                                    <small>+{{ number_format($performer['gain_percent'], 2) }}% from {{ number_format($performer['start_price'], 2) }}</small>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="empty-state">
+                        <div>
+                            <h3>No data to display yet</h3>
+                            <p>Upload a stock price file to see the top 5 performers chart.</p>
+                        </div>
+                    </div>
+                @endif
+            </section>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        const fileInput = document.getElementById('stock_file');
+        const fileName = document.getElementById('fileName');
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadBtn = document.getElementById('uploadBtn');
+
+        fileInput.addEventListener('change', () => {
+            fileName.textContent = fileInput.files[0]?.name || 'No file selected';
+        });
+
+        uploadForm.addEventListener('submit', () => {
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+        });
+
+        @if ($analysis && $analysis['performers']->isNotEmpty())
+            const chartData = @json($analysis['chart']);
+
+            new Chart(document.getElementById('performanceChart'), {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                boxHeight: 12,
+                                padding: 16,
+                            },
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label(context) {
+                                    const value = context.parsed.y;
+                                    return `${context.dataset.label}: ${value?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? 'N/A'}`;
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false,
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                            },
+                        },
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: '#e2e8f0',
+                            },
+                            ticks: {
+                                callback(value) {
+                                    return Number(value).toLocaleString();
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+        @endif
+    </script>
+</body>
+
+</html>
