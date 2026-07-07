@@ -327,10 +327,46 @@ Therefore using **Highest stock price mthod** for this analys instead of **inves
 
 ---
 
+## Testing
+
+The project includes **PHPUnit** tests for core assignment logic and authentication. Tests run against an in-memory **SQLite** database (configured in `phpunit.xml`) — no separate test database setup is required.
+
+### Run tests
+
+```bash
+
+php artisan test
+
+# Unit tests only (services)
+php artisan test tests/Unit
+
+# Feature tests only (HTTP / login flow)
+php artisan test tests/Feature
+
+# Single file
+php artisan test tests/Unit/TopPerformersAnalyzerTest.php
+php artisan test tests/Feature/LoginTest.php
+
+# Single test method
+php artisan test --filter test_it_ranks_stocks_by_max_price_gain
+```
+
+### What is covered
+
+| Test | Type | What it verifies |
+|------|------|------------------|
+| `TopPerformersAnalyzerTest` | Unit | Stocks ranked by max price gain; only top 5 returned |
+| `StockFileParserTest` | Unit | Valid CSV parsing; invalid price rejected |
+| `LoginTest` | Feature | Login succeeds with valid credentials; fails with invalid credentials |
+
+
 ## Useful Artisan commands
 
 | Command | Description |
 |---------|-------------|
+| `php artisan test` | Run all unit and feature tests |
+| `php artisan test tests/Unit` | Run unit tests only |
+| `php artisan test tests/Feature` | Run feature tests only |
 | `php artisan migrate` | Run database migrations |
 | `php artisan migrate:fresh` | Drop all tables and re-run migrations |
 | `php artisan db:seed` | Seed demo users |
@@ -365,6 +401,13 @@ resources/views/
 └── dashboard.blade.php                # Upload form + Chart.js histogram
 
 routes/web.php                         # Application routes
+
+tests/
+├── Unit/
+│   ├── TopPerformersAnalyzerTest.php  # Max price gain & top 5 logic
+│   └── StockFileParserTest.php        # CSV parsing & validation
+└── Feature/
+    └── LoginTest.php                  # Login success & failure
 ```
 
 ---
