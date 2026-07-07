@@ -4,8 +4,9 @@ namespace App\Services;
 
 use App\Models\StockUpload;
 use Illuminate\Support\Collection;
+use App\Contracts\TopPerformersAnalyzerInterface;
 
-class TopPerformersAnalyzer
+class TopPerformersAnalyzer implements TopPerformersAnalyzerInterface
 {
     /**
      * Analyze the stock upload and return the top performers.

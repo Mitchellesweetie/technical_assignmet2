@@ -6,8 +6,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Contracts\StockFileParserInterface;
 
-class StockFileParser
+class StockFileParser implements StockFileParserInterface
 {
     /**
      * @return array<int, array{stock: string, price: float, date: string}>

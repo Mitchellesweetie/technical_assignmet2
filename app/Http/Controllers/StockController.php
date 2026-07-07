@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\StockPrice;
 use App\Models\StockUpload;
-use App\Services\StockFileParser;
-use App\Services\TopPerformersAnalyzer;
+use App\Contracts\StockFileParserInterface;
+use App\Contracts\TopPerformersAnalyzerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -16,8 +16,8 @@ use PhpOffice\PhpSpreadsheet\Reader\Exception as SpreadsheetReaderException;
 class StockController extends Controller
 {
     public function __construct(
-        private readonly StockFileParser $parser,
-        private readonly TopPerformersAnalyzer $analyzer,
+        private readonly StockFileParserInterface $parser,
+        private readonly TopPerformersAnalyzerInterface $analyzer,
         
     ) {}
 
