@@ -64,9 +64,9 @@ class StockFileParser
             $rows[0]
         );
 
-        $stockIndex = $this->columnIndex($header, ['stock', 'stock name', 'name']);
-        $priceIndex = $this->columnIndex($header, ['price', 'close', 'value']);
-        $dateIndex = $this->columnIndex($header, ['date', 'trade date', 'trading date']);
+        $stockIndex = $this->columnIndex($header, ['stock']);
+        $priceIndex = $this->columnIndex($header, ['price']);
+        $dateIndex = $this->columnIndex($header, ['date']);
 
         $hasHeader = $stockIndex !== null && $priceIndex !== null && $dateIndex !== null;
         $startRow = $hasHeader ? 1 : 0;
@@ -95,7 +95,9 @@ class StockFileParser
             }
 
             if (! is_numeric($price)) {
-                throw new InvalidArgumentException("Invalid price value on row ".($i + 1).".");
+                // throw new InvalidArgumentException("Invalid price value on row ".($i + 1).".");
+                throw new InvalidArgumentException("Invalid headers or value on row ".($i + 1).". Please ensure the file has the correct headers and values: stock, price, date.");
+
             }
 
             $records[] = [

@@ -8,6 +8,10 @@ use App\Services\StockFileParser;
 use App\Services\TopPerformersAnalyzer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
+use Throwable;
+use PhpOffice\PhpSpreadsheet\Reader\Exception as SpreadsheetReaderException;
+
 
 class StockController extends Controller
 {
@@ -39,7 +43,19 @@ class StockController extends Controller
         ]);
 
         $file = $request->file('stock_file');
-        $records = $this->parser->parse($file);
+        try {
+            $records = $this->parser->parse($file);
+        } catch (InvalidArgumentException $e) {
+            return back()->withErrors(['stock_file' => $e->getMessage()]);
+        }catch (SpreadsheetReaderException $e) {
+            return back()->withErrors([
+                'stock_file' => 'Could not read the spreadsheet. Please download and upload a valid .xlsx or .csv file with columns: stock, price, date.',
+            ]);
+        } catch (Throwable $e) {
+            return back()->withErrors([
+                'stock_file' => 'Something went wrong while processing your file. Please check the format and try again.',
+            ]);
+        }
 
         DB::transaction(function () use ($file, $records) {
             $upload = StockUpload::query()->create([

@@ -8,11 +8,11 @@ use Illuminate\Support\Collection;
 class TopPerformersAnalyzer
 {
     /**
-     * @return array{
-     *     performers: Collection<int, array{stock: string, gain: float, gain_percent: float, start_price: float, peak_price: float}>,
-     *     chart: array{labels: array<int, string>, datasets: array<int, array{label: string, data: array<int, float>, backgroundColor: array<int, string>, borderColor: array<int, string>, borderWidth: int, borderRadius: int}>},
-     *     period: array{start: string|null, end: string|null}
-     * }
+     * Analyze the stock upload and return the top performers.
+     *
+     * @param  StockUpload  $upload
+     * @param  int  $limit
+     * @return array
      */
     public function analyze(StockUpload $upload, int $limit = 5): array
     {

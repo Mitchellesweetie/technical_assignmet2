@@ -281,6 +281,7 @@ So:
 - For **highest share price** → Limuru Tea.
 - For **percentage growth** → compare % change; Umeme Holdings looks stronger on that basis.
 - For **this assignment** → rank by **max price gain during the period** (what the histogram shows).
+Therefore using **Highest stock price mthod** for this analys instead of **investment growth method**.With **Limuru Tea** and the other top 5 having the high value stability
 
 ### UI and technical choices
 

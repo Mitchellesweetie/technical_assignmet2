@@ -23,7 +23,8 @@
         }
 
         .topbar {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            /* background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); */
+            background-color: var(--primary);
             color: #fff;
             padding: 20px 28px;
             display: flex;
