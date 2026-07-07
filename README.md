@@ -30,7 +30,7 @@ Upload a stock price file and view the top 5 performers as a histogram, ranked b
 |------|-------------------|
 | **PHP** | `^8.3` (8.3 or higher) |
 | **Laravel** | `^13.8` (installed: **13.18.1**) |
-| **Database** | SQLite (default) or MySQL |
+| **Database** | SQLite, MySQL, or PostgreSQL |
 | **Excel/CSV parsing** | [maatwebsite/excel](https://github.com/SpartnerNL/Laravel-Excel) `^3.1` |
 | **Charts** | [Chart.js](https://www.chartjs.org/) 4.x (CDN) |
 | **Frontend build** | Vite 8, Tailwind CSS 4 (optional for asset pipeline) |
@@ -52,17 +52,21 @@ Before you begin, make sure you have:
 
 - **Git**
 - **PHP 8.3+** with extensions: `mbstring`, `openssl`, `pdo`, `tokenizer`, `xml`, `ctype`, `json`, `fileinfo`
+- **PDO driver for your database** (install the one matching `DB_CONNECTION`):
+  - SQLite: `pdo_sqlite` (often included with PHP)
+  - MySQL: `pdo_mysql`
+  - PostgreSQL: `pdo_pgsql`
 - **Composer** 2.x
 - **Node.js** 18+ and **npm** (optional; only needed if you run the Vite asset pipeline)
-- **MySQL 8+** (optional; SQLite works out of the box)
+- **MySQL 8+** or **PostgreSQL 15+** (optional; SQLite works out of the box)
 
 Check your versions:
 
 ```bash
 php -v
 composer -V
-node -v    
-mysql --version   
+node -v
+php -m | grep pdo    # confirm pdo_sqlite, pdo_mysql, and/or pdo_pgsql
 ```
 
 ---
@@ -108,7 +112,15 @@ APP_URL=http://localhost:8000
 ```
 
 
-#### DATABASE MySQL
+#### Database
+
+Set `DB_CONNECTION` to `sqlite`, `mysql`, or `pgsql`. Make sure PHP has the matching PDO driver installed (`pdo_sqlite`, `pdo_mysql`, or `pdo_pgsql`). Check with:
+
+```bash
+php -m | grep pdo
+```
+
+**MySQL example:**
 
 ```env
 DB_CONNECTION=mysql
@@ -122,8 +134,31 @@ DB_PASSWORD=your_password
 Create the database in MySQL before migrating:
 
 ```sql
-php artisan migrate will create by default 
 CREATE DATABASE technical_assignment2;
+```
+
+**PostgreSQL example:**
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=technical_assignment2
+DB_USERNAME=your_pg_user
+DB_PASSWORD=your_password
+```
+
+Create the database in PostgreSQL before migrating:
+
+```sql
+CREATE DATABASE technical_assignment2;
+```
+
+**SQLite example** (no server required):
+
+```env
+DB_CONNECTION=sqlite
+# DB_DATABASE is optional; defaults to database/database.sqlite
 ```
 
 #### Session and cache (recommended defaults)
@@ -350,10 +385,14 @@ routes/web.php                         # Application routes
 
 ### `SQLSTATE[HY000] [2002] Connection refused`
 
-MySQL is not running or `.env` database settings are wrong. Either:
+The database server is not running or `.env` settings are wrong. Either:
 
-- Start MySQL and verify `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, or
-- Switch to SQLite (see **Option A** above)
+- Start MySQL/PostgreSQL and verify `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, or
+- Switch to SQLite (set `DB_CONNECTION=sqlite` in `.env`)
+
+### `could not find driver`
+
+PHP is missing the PDO extension for your database. Install the matching driver (`pdo_mysql` or `pdo_pgsql`) and restart your web server or `php artisan serve`.
 
 ### `Base table or view not found`
 
